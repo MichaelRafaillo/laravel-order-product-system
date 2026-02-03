@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "skills": {
+    "parallel-search": {
+      "version": "1.0.0",
+      "installedAt": 1770154015781
+    },
+    "github": {
+      "version": "1.0.0",
+      "installedAt": 1770155505903
+    },
+    "git-essentials": {
+      "version": "1.0.0",
+      "installedAt": 1770155509542
+    },
+    "ai-code-review": {
+      "version": "1.0.1",
+      "installedAt": 1770155512585
+    },
+    "docker-essentials": {
+      "version": "1.0.0",
+      "installedAt": 1770155515655
+    },
+    "kubernetes": {
+      "version": "1.0.0",
+      "installedAt": 1770155519451
+    },
+    "ai-dockerfile": {
+      "version": "1.0.1",
+      "installedAt": 1770155522752
+    },
+    "searxng-bangs": {
+      "version": "1.0.0",
+      "installedAt": 1770155581107
+    },
+    "file-search": {
+      "version": "1.0.0",
+      "installedAt": 1770155583961
+    }
+  }
+}

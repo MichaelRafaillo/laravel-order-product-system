@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Requests\StoreOrderRequest;
+use App\Http\Requests\UpdateOrderStatusRequest;
+use App\Http\Resources\OrderResource;
+use App\Policies\OrderPolicy;
 use App\Services\OrderService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class OrderController
 {
@@ -14,9 +17,11 @@ class OrderController
 
     public function index(): JsonResponse
     {
+        $this->authorize('viewAny', OrderPolicy::class);
+
         return response()->json([
             'success' => true,
-            'data' => $this->orderService->getAllOrders()
+            'data' => OrderResource::collection($this->orderService->getAllOrders())
         ]);
     }
 
@@ -31,82 +36,87 @@ class OrderController
             ], 404);
         }
 
+        $this->authorize('view', $order);
+
         return response()->json([
             'success' => true,
-            'data' => $order
+            'data' => new OrderResource($order)
         ]);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(StoreOrderRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'customer_id' => 'required|exists:users,id',
-            'status' => 'sometimes|in:pending,processing,completed,cancelled,refunded',
-            'notes' => 'nullable|string',
-            'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|exists:products,id',
-            'items.*.quantity' => 'required|integer|min:1'
-        ]);
+        $this->authorize('create', OrderPolicy::class);
 
+        $validated = $request->validated();
         $order = $this->orderService->createOrder($validated);
 
         return response()->json([
             'success' => true,
             'message' => 'Order created successfully',
-            'data' => $order
+            'data' => new OrderResource($order)
         ], 201);
     }
 
-    public function updateStatus(Request $request, int $id): JsonResponse
+    public function updateStatus(UpdateOrderStatusRequest $request, int $id): JsonResponse
     {
-        $validated = $request->validate([
-            'status' => 'required|in:pending,processing,completed,cancelled,refunded'
-        ]);
-
-        $updated = $this->orderService->updateOrderStatus($id, $validated['status']);
-
-        if (!$updated) {
+        $order = $this->orderService->getOrderById($id);
+        
+        if (!$order) {
             return response()->json([
                 'success' => false,
                 'message' => 'Order not found'
             ], 404);
         }
 
+        $this->authorize('update', $order);
+
+        $validated = $request->validated();
+        $this->orderService->updateOrderStatus($id, $validated['status']);
+
         return response()->json([
             'success' => true,
             'message' => 'Order status updated successfully',
-            'data' => $this->orderService->getOrderById($id)
+            'data' => new OrderResource($this->orderService->getOrderById($id))
         ]);
     }
 
     public function cancel(int $id): JsonResponse
     {
-        $cancelled = $this->orderService->cancelOrder($id);
-
-        if (!$cancelled) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Order cannot be cancelled'
-            ], 400);
-        }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Order cancelled successfully',
-            'data' => $this->orderService->getOrderById($id)
-        ]);
-    }
-
-    public function destroy(int $id): JsonResponse
-    {
-        $deleted = $this->orderService->deleteProduct($id);
-
-        if (!$deleted) {
+        $order = $this->orderService->getOrderById($id);
+        
+        if (!$order) {
             return response()->json([
                 'success' => false,
                 'message' => 'Order not found'
             ], 404);
         }
+
+        $this->authorize('cancel', $order);
+
+        $this->orderService->cancelOrder($id);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Order cancelled successfully',
+            'data' => new OrderResource($this->orderService->getOrderById($id))
+        ]);
+    }
+
+    public function destroy(int $id): JsonResponse
+    {
+        $order = $this->orderService->getOrderById($id);
+        
+        if (!$order) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Order not found'
+            ], 404);
+        }
+
+        $this->authorize('delete', $order);
+
+        $this->orderService->deleteProduct($id);
 
         return response()->json([
             'success' => true,
@@ -116,9 +126,11 @@ class OrderController
 
     public function byStatus(string $status): JsonResponse
     {
+        $this->authorize('viewAny', OrderPolicy::class);
+
         return response()->json([
             'success' => true,
-            'data' => $this->orderService->getOrdersByStatus($status)
+            'data' => OrderResource::collection($this->orderService->getOrdersByStatus($status))
         ]);
     }
 
@@ -126,7 +138,7 @@ class OrderController
     {
         return response()->json([
             'success' => true,
-            'data' => $this->orderService->getCustomerOrders($customerId)
+            'data' => OrderResource::collection($this->orderService->getCustomerOrders($customerId))
         ]);
     }
 }
