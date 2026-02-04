@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Repositories;
+namespace App\Infrastructure\Repositories;
 
-use App\Contracts\Repositories\OrderRepositoryInterface;
+use App\Application\Interfaces\Repositories\OrderRepositoryInterface;
 use App\Models\Order;
 use Illuminate\Database\Eloquent\Collection;
 

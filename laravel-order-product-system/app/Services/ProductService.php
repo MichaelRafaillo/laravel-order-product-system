@@ -1,12 +1,20 @@
 <?php
 
-namespace App\Services;
+namespace App\Application\Services;
 
-use App\Contracts\Repositories\ProductRepositoryInterface;
+use App\Application\DTOs\CreateProductDTO;
+use App\Application\DTOs\UpdateProductDTO;
+use App\Application\Interfaces\Repositories\ProductRepositoryInterface;
+use App\Application\Interfaces\Services\ProductServiceInterface;
+use App\Domain\Events\ProductCreated;
+use App\Domain\Events\ProductUpdated;
+use App\Domain\Exceptions\InsufficientStockException;
+use App\Domain\Exceptions\ProductNotFoundException;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Event;
 
-class ProductService
+class ProductService implements ProductServiceInterface
 {
     public function __construct(
         protected ProductRepositoryInterface $productRepository
@@ -17,24 +25,43 @@ class ProductService
         return $this->productRepository->getAll();
     }
 
-    public function getProductById(int $id): ?Product
+    public function getProductById(int $id): Product
     {
-        return $this->productRepository->findById($id);
+        $product = $this->productRepository->findById($id);
+        
+        if (!$product) {
+            throw new ProductNotFoundException($id);
+        }
+        
+        return $product;
     }
 
-    public function createProduct(array $data): Product
+    public function createProduct(CreateProductDTO $dto): Product
     {
-        return $this->productRepository->create($data);
+        $product = $this->productRepository->create($dto->toArray());
+        
+        Event::dispatch(new ProductCreated($product));
+        
+        return $product;
     }
 
-    public function updateProduct(int $id, array $data): bool
+    public function updateProduct(int $id, UpdateProductDTO $dto): Product
     {
-        return $this->productRepository->update($id, $data);
+        $product = $this->getProductById($id);
+
+        $changes = $dto->toArray();
+        $this->productRepository->update($id, $changes);
+        
+        $updatedProduct = $product->fresh();
+        Event::dispatch(new ProductUpdated($updatedProduct, $changes));
+        
+        return $updatedProduct;
     }
 
-    public function deleteProduct(int $id): bool
+    public function deleteProduct(int $id): void
     {
-        return $this->productRepository->delete($id);
+        $this->getProductById($id);
+        $this->productRepository->delete($id);
     }
 
     public function searchProducts(string $keyword): Collection
@@ -42,15 +69,19 @@ class ProductService
         return $this->productRepository->search($keyword);
     }
 
-    public function reduceStock(int $productId, int $quantity): bool
+    public function reduceStock(int $productId, int $quantity): void
     {
-        $product = $this->productRepository->findById($productId);
+        $product = $this->getProductById($productId);
         
-        if (!$product || $product->stock_quantity < $quantity) {
-            return false;
+        if ($product->stock_quantity < $quantity) {
+            throw new InsufficientStockException(
+                $productId,
+                $quantity,
+                $product->stock_quantity
+            );
         }
 
-        return $this->productRepository->update($productId, [
+        $this->productRepository->update($productId, [
             'stock_quantity' => $product->stock_quantity - $quantity
         ]);
     }

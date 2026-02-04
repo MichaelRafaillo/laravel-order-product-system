@@ -11,13 +11,22 @@ class OrderItemResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'product_id' => $this->product_id,
-            'product_name' => $this->product->name ?? null,
-            'quantity' => $this->quantity,
-            'unit_price' => $this->unit_price,
-            'formatted_unit_price' => number_format($this->unit_price, 2),
-            'subtotal' => $this->subtotal,
-            'formatted_subtotal' => number_format($this->subtotal, 2),
+            'type' => 'order_item',
+            'attributes' => [
+                'product_id' => $this->product_id,
+                'product_name' => $this->product->name ?? null,
+                'quantity' => $this->quantity,
+                'unit_price' => [
+                    'amount' => $this->unit_price,
+                    'currency' => 'USD',
+                    'formatted' => number_format($this->unit_price, 2) . ' USD',
+                ],
+                'subtotal' => [
+                    'amount' => $this->subtotal,
+                    'currency' => 'USD',
+                    'formatted' => number_format($this->subtotal, 2) . ' USD',
+                ],
+            ],
         ];
     }
 }

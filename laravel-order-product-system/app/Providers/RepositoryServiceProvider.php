@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Providers;
+namespace App\Infrastructure\Providers;
 
-use App\Contracts\Repositories\OrderRepositoryInterface;
-use App\Contracts\Repositories\ProductRepositoryInterface;
-use App\Repositories\OrderRepository;
-use App\Repositories\ProductRepository;
+use App\Application\Interfaces\Repositories\OrderRepositoryInterface;
+use App\Application\Interfaces\Repositories\ProductRepositoryInterface;
+use App\Infrastructure\Repositories\OrderRepository;
+use App\Infrastructure\Repositories\ProductRepository;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
