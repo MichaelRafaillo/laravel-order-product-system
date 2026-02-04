@@ -12,7 +12,7 @@ use App\Http\Resources\ProductResource;
 use App\Policies\ProductPolicy;
 use Illuminate\Http\JsonResponse;
 
-class ProductController
+class ProductController extends \App\Http\Controllers\Controller
 {
     public function __construct(
         protected ProductServiceInterface $productService

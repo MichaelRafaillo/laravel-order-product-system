@@ -12,7 +12,7 @@ use App\Http\Resources\OrderResource;
 use App\Policies\OrderPolicy;
 use Illuminate\Http\JsonResponse;
 
-class OrderController
+class OrderController extends \App\Http\Controllers\Controller
 {
     public function __construct(
         protected OrderServiceInterface $orderService
