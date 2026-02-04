@@ -19,6 +19,7 @@ class Handler extends ExceptionHandler
 
     public function render($request, Throwable $e)
     {
+        // Always return JSON for API requests
         if ($e instanceof ValidationException) {
             return response()->json([
                 'success' => false,
@@ -28,6 +29,19 @@ class Handler extends ExceptionHandler
                     'errors' => $e->errors()
                 ]
             ], 422);
+        }
+
+        // For API routes, always return JSON
+        if ($request->is('api/*') || $request->expectsJson()) {
+            $status = method_exists($e, 'getStatusCode') ? $e->getStatusCode() : 500;
+            
+            return response()->json([
+                'success' => false,
+                'error' => [
+                    'code' => 'ERROR',
+                    'message' => $e->getMessage()
+                ]
+            ], $status);
         }
 
         return parent::render($request, $e);
