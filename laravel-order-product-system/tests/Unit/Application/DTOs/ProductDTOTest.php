@@ -76,13 +76,13 @@ class ProductDTOTest extends TestCase
     {
         $dto = UpdateProductDTO::fromArray([
             'name' => 'Updated Name',
-            'description' => null, // Explicit null
+            'description' => null, // Null means "not provided", excluded from array
         ]);
 
         $array = $dto->toArray();
 
         $this->assertArrayHasKey('name', $array);
-        $this->assertArrayHasKey('description', $array);
+        $this->assertArrayNotHasKey('description', $array); // Null excluded
         $this->assertArrayNotHasKey('price', $array);
         $this->assertArrayNotHasKey('stock_quantity', $array);
     }

@@ -31,7 +31,7 @@ class Money
 
     public function formatted(): string
     {
-        return number_format($this->amount, 2) . ' ' . $this->currency;
+        return number_format($this->amount, 2, '.', '') . ' ' . $this->currency;
     }
 
     public function add(Money $other): Money

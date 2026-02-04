@@ -8,7 +8,7 @@ class CreateOrderDTO
 {
     public function __construct(
         public readonly int $customerId,
-        public readonly OrderItemDTO $items,
+        public readonly array $items,
         public readonly ?OrderStatus $status = null,
         public readonly ?string $notes = null
     ) {}
