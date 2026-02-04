@@ -10,12 +10,12 @@ class ProductRepository implements ProductRepositoryInterface
 {
     public function getAll(): Collection
     {
-        return Product::withTrashed()->get();
+        return Product::all();
     }
 
     public function findById(int $id): ?Product
     {
-        return Product::withTrashed()->find($id);
+        return Product::find($id);
     }
 
     public function create(array $data): Product
@@ -37,8 +37,7 @@ class ProductRepository implements ProductRepositoryInterface
 
     public function search(string $keyword): Collection
     {
-        return Product::withTrashed()
-            ->where('name', 'like', "%{$keyword}%")
+        return Product::where('name', 'like', "%{$keyword}%")
             ->orWhere('sku', 'like', "%{$keyword}%")
             ->get();
     }

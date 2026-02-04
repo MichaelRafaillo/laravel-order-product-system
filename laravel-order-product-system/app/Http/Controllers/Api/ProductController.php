@@ -9,7 +9,6 @@ use App\Domain\Exceptions\DomainException;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Http\Resources\ProductResource;
-use App\Policies\ProductPolicy;
 use Illuminate\Http\JsonResponse;
 
 class ProductController extends \App\Http\Controllers\Controller
@@ -20,8 +19,6 @@ class ProductController extends \App\Http\Controllers\Controller
 
     public function index(): JsonResponse
     {
-        $this->authorize('viewAny', ProductPolicy::class);
-        
         return response()->json([
             'success' => true,
             'data' => ProductResource::collection($this->productService->getAllProducts())
@@ -32,7 +29,6 @@ class ProductController extends \App\Http\Controllers\Controller
     {
         try {
             $product = $this->productService->getProductById($id);
-            $this->authorize('view', $product);
 
             return response()->json([
                 'success' => true,
@@ -51,8 +47,6 @@ class ProductController extends \App\Http\Controllers\Controller
 
     public function store(StoreProductRequest $request): JsonResponse
     {
-        $this->authorize('create', ProductPolicy::class);
-
         $dto = CreateProductDTO::fromArray($request->validated());
         $product = $this->productService->createProduct($dto);
 
@@ -66,9 +60,6 @@ class ProductController extends \App\Http\Controllers\Controller
     public function update(UpdateProductRequest $request, int $id): JsonResponse
     {
         try {
-            $product = $this->productService->getProductById($id);
-            $this->authorize('update', $product);
-
             $dto = UpdateProductDTO::fromArray($request->validated());
             $updatedProduct = $this->productService->updateProduct($id, $dto);
 
@@ -91,9 +82,6 @@ class ProductController extends \App\Http\Controllers\Controller
     public function destroy(int $id): JsonResponse
     {
         try {
-            $product = $this->productService->getProductById($id);
-            $this->authorize('delete', $product);
-
             $this->productService->deleteProduct($id);
 
             return response()->json([
@@ -113,8 +101,6 @@ class ProductController extends \App\Http\Controllers\Controller
 
     public function search(\Illuminate\Http\Request $request): JsonResponse
     {
-        $this->authorize('viewAny', ProductPolicy::class);
-
         $keyword = $request->get('q', '');
         
         return response()->json([

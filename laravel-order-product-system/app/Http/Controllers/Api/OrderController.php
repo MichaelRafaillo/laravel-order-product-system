@@ -9,7 +9,6 @@ use App\Domain\Exceptions\DomainException;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderStatusRequest;
 use App\Http\Resources\OrderResource;
-use App\Policies\OrderPolicy;
 use Illuminate\Http\JsonResponse;
 
 class OrderController extends \App\Http\Controllers\Controller
@@ -20,8 +19,6 @@ class OrderController extends \App\Http\Controllers\Controller
 
     public function index(): JsonResponse
     {
-        $this->authorize('viewAny', OrderPolicy::class);
-
         return response()->json([
             'success' => true,
             'data' => OrderResource::collection($this->orderService->getAllOrders())
@@ -32,7 +29,6 @@ class OrderController extends \App\Http\Controllers\Controller
     {
         try {
             $order = $this->orderService->getOrderById($id);
-            $this->authorize('view', $order);
 
             return response()->json([
                 'success' => true,
@@ -51,8 +47,6 @@ class OrderController extends \App\Http\Controllers\Controller
 
     public function store(StoreOrderRequest $request): JsonResponse
     {
-        $this->authorize('create', OrderPolicy::class);
-
         $dto = CreateOrderDTO::fromArray($request->validated());
         $order = $this->orderService->createOrder($dto);
 
@@ -66,9 +60,6 @@ class OrderController extends \App\Http\Controllers\Controller
     public function updateStatus(UpdateOrderStatusRequest $request, int $id): JsonResponse
     {
         try {
-            $order = $this->orderService->getOrderById($id);
-            $this->authorize('update', $order);
-
             $dto = UpdateOrderStatusDTO::fromArray($request->validated());
             $updatedOrder = $this->orderService->updateOrderStatus($id, $dto);
 
@@ -91,9 +82,6 @@ class OrderController extends \App\Http\Controllers\Controller
     public function cancel(int $id): JsonResponse
     {
         try {
-            $order = $this->orderService->getOrderById($id);
-            $this->authorize('cancel', $order);
-
             $cancelledOrder = $this->orderService->cancelOrder($id);
 
             return response()->json([
@@ -115,9 +103,6 @@ class OrderController extends \App\Http\Controllers\Controller
     public function destroy(int $id): JsonResponse
     {
         try {
-            $order = $this->orderService->getOrderById($id);
-            $this->authorize('delete', $order);
-
             $this->orderService->deleteOrder($id);
 
             return response()->json([
@@ -137,8 +122,6 @@ class OrderController extends \App\Http\Controllers\Controller
 
     public function byStatus(string $status): JsonResponse
     {
-        $this->authorize('viewAny', OrderPolicy::class);
-
         return response()->json([
             'success' => true,
             'data' => OrderResource::collection($this->orderService->getOrdersByStatus($status))

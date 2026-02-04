@@ -10,12 +10,12 @@ class OrderRepository implements OrderRepositoryInterface
 {
     public function getAll(): Collection
     {
-        return Order::withTrashed()->with('items')->get();
+        return Order::with('items')->get();
     }
 
     public function findById(int $id): ?Order
     {
-        return Order::withTrashed()->with('items')->find($id);
+        return Order::with('items')->find($id);
     }
 
     public function create(array $data): Order
@@ -37,14 +37,14 @@ class OrderRepository implements OrderRepositoryInterface
 
     public function getByStatus(string $status): Collection
     {
-        return Order::withTrashed()->with('items')
+        return Order::with('items')
             ->where('status', $status)
             ->get();
     }
 
     public function getByCustomer(int $customerId): Collection
     {
-        return Order::withTrashed()->with('items')
+        return Order::with('items')
             ->where('customer_id', $customerId)
             ->get();
     }
