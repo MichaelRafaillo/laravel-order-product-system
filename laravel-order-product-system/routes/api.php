@@ -33,4 +33,10 @@ Route::prefix('orders')->group(function () {
     Route::delete('/{id}', [OrderController::class, 'destroy']);
     Route::get('/status/{status}', [OrderController::class, 'byStatus']);
     Route::get('/customer/{customerId}', [OrderController::class, 'customerOrders']);
+    
+    // Order Item Management Routes
+    Route::post('/{orderId}/items', [OrderController::class, 'addItem']);
+    Route::put('/{orderId}/items/{itemId}', [OrderController::class, 'updateItemQuantity']);
+    Route::delete('/{orderId}/items/{itemId}', [OrderController::class, 'removeItem']);
+    Route::post('/{orderId}/recalculate', [OrderController::class, 'recalculateTotal']);
 });

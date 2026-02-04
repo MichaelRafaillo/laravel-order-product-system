@@ -5,8 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Application\DTOs\CreateOrderDTO;
 use App\Application\DTOs\UpdateOrderStatusDTO;
 use App\Application\Interfaces\Services\OrderServiceInterface;
-use App\Domain\Exceptions\DomainException;
+use App\Http\Requests\AddOrderItemRequest;
 use App\Http\Requests\StoreOrderRequest;
+use App\Http\Requests\UpdateOrderItemQuantityRequest;
 use App\Http\Requests\UpdateOrderStatusRequest;
 use App\Http\Resources\OrderResource;
 use Illuminate\Http\JsonResponse;
@@ -34,14 +35,14 @@ class OrderController extends \App\Http\Controllers\Controller
                 'success' => true,
                 'data' => new OrderResource($order)
             ]);
-        } catch (DomainException $e) {
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'error' => [
-                    'code' => $e->getErrorCode(),
+                    'code' => 'ERROR',
                     'message' => $e->getMessage()
                 ]
-            ], $e->getCode());
+            ], 400);
         }
     }
 
@@ -68,14 +69,14 @@ class OrderController extends \App\Http\Controllers\Controller
                 'message' => 'Order status updated successfully',
                 'data' => new OrderResource($updatedOrder)
             ]);
-        } catch (DomainException $e) {
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'error' => [
-                    'code' => $e->getErrorCode(),
+                    'code' => 'ERROR',
                     'message' => $e->getMessage()
                 ]
-            ], $e->getCode());
+            ], 400);
         }
     }
 
@@ -89,14 +90,14 @@ class OrderController extends \App\Http\Controllers\Controller
                 'message' => 'Order cancelled successfully',
                 'data' => new OrderResource($cancelledOrder)
             ]);
-        } catch (DomainException $e) {
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'error' => [
-                    'code' => $e->getErrorCode(),
+                    'code' => 'ERROR',
                     'message' => $e->getMessage()
                 ]
-            ], $e->getCode());
+            ], 400);
         }
     }
 
@@ -109,14 +110,14 @@ class OrderController extends \App\Http\Controllers\Controller
                 'success' => true,
                 'message' => 'Order deleted successfully'
             ]);
-        } catch (DomainException $e) {
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'error' => [
-                    'code' => $e->getErrorCode(),
+                    'code' => 'ERROR',
                     'message' => $e->getMessage()
                 ]
-            ], $e->getCode());
+            ], 400);
         }
     }
 
@@ -134,5 +135,101 @@ class OrderController extends \App\Http\Controllers\Controller
             'success' => true,
             'data' => OrderResource::collection($this->orderService->getCustomerOrders($customerId))
         ]);
+    }
+
+    // Order Item Management Endpoints
+
+    public function addItem(AddOrderItemRequest $request, int $orderId): JsonResponse
+    {
+        try {
+            $validated = $request->validated();
+            $order = $this->orderService->addItemToOrder(
+                $orderId,
+                $validated['product_id'],
+                $validated['quantity']
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Item added to order successfully',
+                'data' => new OrderResource($order)
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => [
+                    'code' => 'ERROR',
+                    'message' => $e->getMessage()
+                ]
+            ], 400);
+        }
+    }
+
+    public function updateItemQuantity(UpdateOrderItemQuantityRequest $request, int $orderId, int $itemId): JsonResponse
+    {
+        try {
+            $validated = $request->validated();
+            $order = $this->orderService->updateOrderItemQuantity(
+                $orderId,
+                $itemId,
+                $validated['quantity']
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Item quantity updated successfully',
+                'data' => new OrderResource($order)
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => [
+                    'code' => 'ERROR',
+                    'message' => $e->getMessage()
+                ]
+            ], 400);
+        }
+    }
+
+    public function removeItem(int $orderId, int $itemId): JsonResponse
+    {
+        try {
+            $order = $this->orderService->removeOrderItem($orderId, $itemId);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Item removed from order successfully',
+                'data' => new OrderResource($order)
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => [
+                    'code' => 'ERROR',
+                    'message' => $e->getMessage()
+                ]
+            ], 400);
+        }
+    }
+
+    public function recalculateTotal(int $orderId): JsonResponse
+    {
+        try {
+            $order = $this->orderService->recalculateOrderTotal($orderId);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Order total recalculated successfully',
+                'data' => new OrderResource($order)
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => [
+                    'code' => 'ERROR',
+                    'message' => $e->getMessage()
+                ]
+            ], 400);
+        }
     }
 }

@@ -17,4 +17,10 @@ interface OrderServiceInterface
     public function deleteOrder(int $id): void;
     public function getOrdersByStatus(string $status): Collection;
     public function getCustomerOrders(int $customerId): Collection;
+    
+    // Order Item Management
+    public function addItemToOrder(int $orderId, int $productId, int $quantity): Order;
+    public function updateOrderItemQuantity(int $orderId, int $itemId, int $quantity): Order;
+    public function removeOrderItem(int $orderId, int $itemId): Order;
+    public function recalculateOrderTotal(int $orderId): Order;
 }

@@ -129,6 +129,136 @@ class OrderService implements OrderServiceInterface
         return $this->orderRepository->getByCustomer($customerId);
     }
 
+    public function addItemToOrder(int $orderId, int $productId, int $quantity): Order
+    {
+        $order = $this->getOrderById($orderId);
+        
+        if ($order->status !== OrderStatus::PENDING && $order->status !== OrderStatus::PROCESSING) {
+            throw new \Exception("Cannot add items to order with status: {$order->status}");
+        }
+
+        $product = $this->productRepository->findById($productId);
+        
+        if (!$product) {
+            throw new \Exception("Product not found");
+        }
+
+        if ($product->stock_quantity < $quantity) {
+            throw new \Exception("Insufficient stock. Available: {$product->stock_quantity}");
+        }
+
+        DB::transaction(function () use ($order, $product, $quantity) {
+            $order->items()->create([
+                'product_id' => $product->id,
+                'quantity' => $quantity,
+                'unit_price' => $product->price,
+                'subtotal' => $product->price * $quantity
+            ]);
+
+            // Reduce stock
+            $this->productRepository->update($product->id, [
+                'stock_quantity' => $product->stock_quantity - $quantity
+            ]);
+
+            // Recalculate total
+            $this->recalculateOrderTotal($order->id);
+        });
+
+        return $this->getOrderById($orderId);
+    }
+
+    public function updateOrderItemQuantity(int $orderId, int $itemId, int $quantity): Order
+    {
+        $order = $this->getOrderById($orderId);
+        
+        if ($order->status !== OrderStatus::PENDING && $order->status !== OrderStatus::PROCESSING) {
+            throw new \Exception("Cannot modify items in order with status: {$order->status}");
+        }
+
+        $item = $order->items()->find($itemId);
+        
+        if (!$item) {
+            throw new \Exception("Order item not found");
+        }
+
+        $product = $this->productRepository->findById($item->product_id);
+        
+        DB::transaction(function () use ($item, $quantity, $product) {
+            $quantityDiff = $quantity - $item->quantity;
+            
+            if ($quantityDiff > 0) {
+                // Increasing quantity - reduce more stock
+                if ($product->stock_quantity < $quantityDiff) {
+                    throw new \Exception("Insufficient stock. Need: {$quantityDiff}, Available: {$product->stock_quantity}");
+                }
+                
+                $this->productRepository->update($product->id, [
+                    'stock_quantity' => $product->stock_quantity - $quantityDiff
+                ]);
+            } elseif ($quantityDiff < 0) {
+                // Decreasing quantity - restore stock
+                $this->productRepository->update($product->id, [
+                    'stock_quantity' => $product->stock_quantity + abs($quantityDiff)
+                ]);
+            }
+
+            // Update item
+            $item->update([
+                'quantity' => $quantity,
+                'subtotal' => $product->price * $quantity
+            ]);
+
+            $this->recalculateOrderTotal($item->order_id);
+        });
+
+        return $this->getOrderById($orderId);
+    }
+
+    public function removeOrderItem(int $orderId, int $itemId): Order
+    {
+        $order = $this->getOrderById($orderId);
+        
+        if ($order->status !== OrderStatus::PENDING && $order->status !== OrderStatus::PROCESSING) {
+            throw new \Exception("Cannot remove items from order with status: {$order->status}");
+        }
+
+        $item = $order->items()->find($itemId);
+        
+        if (!$item) {
+            throw new \Exception("Order item not found");
+        }
+
+        $product = $this->productRepository->findById($item->product_id);
+
+        DB::transaction(function () use ($item, $product) {
+            // Restore stock
+            $this->productRepository->update($product->id, [
+                'stock_quantity' => $product->stock_quantity + $item->quantity
+            ]);
+
+            // Delete item
+            $item->delete();
+
+            // Recalculate total
+            $this->recalculateOrderTotal($item->order_id);
+        });
+
+        return $this->getOrderById($orderId);
+    }
+
+    public function recalculateOrderTotal(int $orderId): Order
+    {
+        $order = $this->getOrderById($orderId);
+        
+        $total = $order->items->sum('subtotal');
+        
+        $this->orderRepository->update($orderId, [
+            'total_amount' => $total
+        ]);
+
+        return $this->getOrderById($orderId);
+    }
+
     private function addOrderItem(Order $order, OrderItemDTO $item): void
     {
         $product = $this->productRepository->findById($item->productId);
