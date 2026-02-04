@@ -17,6 +17,7 @@ use App\Domain\ValueObjects\OrderStatus;
 use App\Models\Order;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 
 class OrderService implements OrderServiceInterface
 {

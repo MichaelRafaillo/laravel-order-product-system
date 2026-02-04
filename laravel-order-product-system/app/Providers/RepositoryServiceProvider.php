@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Infrastructure\Providers;
+namespace App\Providers;
 
 use App\Application\Interfaces\Repositories\OrderRepositoryInterface;
 use App\Application\Interfaces\Repositories\ProductRepositoryInterface;
