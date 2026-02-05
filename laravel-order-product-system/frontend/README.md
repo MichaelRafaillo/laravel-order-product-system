@@ -1,16 +1,92 @@
-# React + Vite
+# React Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Modern React SPA for Product and Order Management.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 📊 **Dashboard** - Overview of products and orders
+- 📦 **Products Management** - CRUD operations for products
+- 🛒 **Orders Management** - Create, view, update status, cancel orders
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React 18
+- Vite
+- React Router DOM
+- Axios
+- Tailwind CSS
 
-## Expanding the ESLint configuration
+## Getting Started
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Install Dependencies
+
+```bash
+cd frontend
+npm install
+```
+
+### Run Development Server
+
+```bash
+npm run dev
+```
+
+The app will be available at `http://localhost:5173`
+
+### Build for Production
+
+```bash
+npm run build
+```
+
+## API Configuration
+
+Update the API URL in `src/services/api.js`:
+
+```javascript
+const API_URL = 'http://localhost:8000/api';
+```
+
+## Project Structure
+
+```
+frontend/
+├── src/
+│   ├── components/     # Reusable components
+│   ├── pages/          # Page components
+│   ├── services/       # API services
+│   ├── context/        # React context (future)
+│   ├── App.jsx        # Main app with routing
+│   └── main.jsx       # Entry point
+├── tailwind.config.js  # Tailwind configuration
+└── vite.config.js     # Vite configuration
+```
+
+## Available Pages
+
+| Route | Description |
+|-------|-------------|
+| `/` | Dashboard with stats |
+| `/products` | Product management |
+| `/orders` | Order management |
+
+## Screenshots
+
+### Dashboard
+- Total products count
+- Total orders count
+- Pending orders
+- Completed orders
+- Recent orders list
+
+### Products Page
+- Product list with search
+- Add/Edit product modal
+- Delete product
+
+### Orders Page
+- Order list with status filter
+- Create new order with items
+- View order details
+- Update order status
+- Cancel order
