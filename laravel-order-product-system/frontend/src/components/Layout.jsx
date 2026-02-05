@@ -7,6 +7,7 @@ const Layout = ({ children }) => {
     { path: '/', label: 'Dashboard', icon: '📊' },
     { path: '/products', label: 'Products', icon: '📦' },
     { path: '/orders', label: 'Orders', icon: '🛒' },
+    { path: '/customers', label: 'Customers', icon: '👥' },
   ];
 
   return (

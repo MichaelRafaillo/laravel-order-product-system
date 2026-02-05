@@ -38,4 +38,14 @@ export const ordersAPI = {
   recalculateTotal: (orderId) => api.post(`/orders/${orderId}/recalculate`),
 };
 
+// Customers API
+export const customersAPI = {
+  getAll: () => api.get('/customers'),
+  getById: (id) => api.get(`/customers/${id}`),
+  create: (data) => api.post('/customers', data),
+  update: (id, data) => api.put(`/customers/${id}`, data),
+  delete: (id) => api.delete(`/customers/${id}`),
+  search: (query) => api.get(`/customers/search?q=${query}`),
+};
+
 export default api;
