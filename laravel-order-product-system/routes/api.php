@@ -40,3 +40,13 @@ Route::prefix('orders')->group(function () {
     Route::delete('/{orderId}/items/{itemId}', [OrderController::class, 'removeItem']);
     Route::post('/{orderId}/recalculate', [OrderController::class, 'recalculateTotal']);
 });
+
+// Customer Routes
+Route::prefix('customers')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Api\CustomerController::class, 'index']);
+    Route::get('/{id}', [\App\Http\Controllers\Api\CustomerController::class, 'show']);
+    Route::post('/', [\App\Http\Controllers\Api\CustomerController::class, 'store']);
+    Route::put('/{id}', [\App\Http\Controllers\Api\CustomerController::class, 'update']);
+    Route::delete('/{id}', [\App\Http\Controllers\Api\CustomerController::class, 'destroy']);
+    Route::get('/search', [\App\Http\Controllers\Api\CustomerController::class, 'search']);
+});

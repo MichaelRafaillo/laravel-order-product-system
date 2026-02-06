@@ -45,7 +45,7 @@ class Order extends Model
         return $this->items->sum('subtotal');
     }
 
-    public function is cancellable(): bool
+    public function isCancellable(): bool
     {
         return in_array($this->status, ['pending', 'processing']);
     }
