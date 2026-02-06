@@ -122,11 +122,11 @@ const Orders = () => {
 
   const getStatusBadge = (status) => {
     const styles = {
-      pending: 'bg-amber-100 text-amber-700 border-amber-200',
-      processing: 'bg-blue-100 text-blue-700 border-blue-200',
-      completed: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-      cancelled: 'bg-red-100 text-red-700 border-red-200',
-      refunded: 'bg-slate-100 text-slate-700 border-slate-200',
+      pending: 'bg-warning text-dark',
+      processing: 'bg-info text-white',
+      completed: 'bg-success text-white',
+      cancelled: 'bg-danger text-white',
+      refunded: 'bg-secondary text-white',
     };
 
     const labels = {
@@ -138,7 +138,7 @@ const Orders = () => {
     };
 
     return (
-      <span className={`px-3 py-1 text-xs font-medium rounded-full border ${styles[status] || 'bg-slate-100 text-slate-700'}`}>
+      <span className={`badge ${styles[status] || 'bg-secondary'}`}>
         {labels[status] || status?.charAt(0).toUpperCase() + status?.slice(1) || 'Unknown'}
       </span>
     );
@@ -146,40 +146,40 @@ const Orders = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-          <span className="text-slate-500">Loading orders...</span>
+      <div className="d-flex align-items-center justify-content-center vh-50">
+        <div className="text-center">
+          <div className="spinner-border text-primary mb-3" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <p className="text-muted">Loading orders...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="container-fluid px-0">
       {/* Page header */}
-      <div className="flex items-center justify-between">
+      <div className="d-flex align-items-center justify-content-between mb-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Orders</h1>
-          <p className="text-slate-500 mt-1">Manage and track customer orders</p>
+          <h1 className="h3 mb-1">Orders</h1>
+          <p className="text-muted mb-0">Manage and track customer orders</p>
         </div>
         <button
           onClick={() => setShowModal(true)}
-          className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm shadow-blue-600/30"
+          className="btn btn-primary"
         >
-          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          New Order
+          + New Order
         </button>
       </div>
 
       {/* Filters */}
-      <div className="flex gap-3">
+      <div className="mb-4">
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+          className="form-select"
+          style={{ width: 'auto' }}
         >
           <option value="">All Orders</option>
           <option value="pending">Pending</option>
@@ -190,295 +190,270 @@ const Orders = () => {
       </div>
 
       {/* Orders Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <table className="min-w-full divide-y divide-slate-200">
-          <thead className="bg-slate-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Order #
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Items
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Total
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Status
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Date
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-slate-200">
-            {orders.map((order) => (
-              <tr key={order.id} className="hover:bg-slate-50 transition-colors">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                      <span className="text-purple-600">🛒</span>
-                    </div>
-                    <div className="ml-4">
-                      <div className="text-sm font-medium text-slate-900">
-                        #{order.attributes?.order_number || order.id}
+      <div className="card border-0 shadow-sm">
+        <div className="card-body p-0">
+          <div className="table-responsive">
+            <table className="table table-hover mb-0">
+              <thead className="table-light">
+                <tr>
+                  <th className="ps-4">Order #</th>
+                  <th>Items</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                  <th className="text-end pe-4">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {orders.map((order) => (
+                  <tr key={order.id}>
+                    <td className="ps-4">
+                      <div className="d-flex align-items-center">
+                        <div className="bg-primary bg-opacity-10 rounded-circle p-2 me-3">
+                          <span>🛒</span>
+                        </div>
+                        <div>
+                          <div className="fw-medium">
+                            #{order.attributes?.order_number || order.id}
+                          </div>
+                          <div className="text-muted small">
+                            Customer: {order.attributes?.customer_id}
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-sm text-slate-500">
-                        Customer: {order.attributes?.customer_id}
-                      </div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                  {order.attributes?.items_count || 0} items
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-900">
-                  {order.attributes?.total_amount?.formatted || 'N/A'}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  {getStatusBadge(order.attributes?.status?.value)}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                  {order.meta?.created_at
-                    ? new Date(order.meta.created_at).toLocaleDateString()
-                    : 'N/A'}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <button
-                    onClick={() => viewOrderDetails(order)}
-                    className="text-blue-600 hover:text-blue-900 mr-3 transition-colors"
-                  >
-                    View
-                  </button>
-                  {order.attributes?.status?.value === 'pending' && (
-                    <button
-                      onClick={() => handleStatusChange(order.id, 'processing')}
-                      className="text-amber-600 hover:text-amber-900 mr-3 transition-colors"
-                    >
-                      Process
-                    </button>
-                  )}
-                  {['pending', 'processing'].includes(order.attributes?.status?.value) && (
-                    <button
-                      onClick={() => handleStatusChange(order.id, 'completed')}
-                      className="text-emerald-600 hover:text-emerald-900 mr-3 transition-colors"
-                    >
-                      Complete
-                    </button>
-                  )}
-                  {order.attributes?.is_cancellable && (
-                    <button
-                      onClick={() => handleCancel(order.id)}
-                      className="text-red-600 hover:text-red-900 mr-3 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                  )}
-                  <button
-                    onClick={() => handleDelete(order.id)}
-                    className="text-slate-600 hover:text-slate-900 transition-colors"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {orders.length === 0 && (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 mx-auto bg-slate-100 rounded-full flex items-center justify-center mb-4">
-              <span className="text-3xl">🛒</span>
-            </div>
-            <p className="text-slate-500">No orders found</p>
+                    </td>
+                    <td>{order.attributes?.items_count || 0} items</td>
+                    <td className="fw-medium">
+                      {order.attributes?.total_amount?.formatted || 'N/A'}
+                    </td>
+                    <td>{getStatusBadge(order.attributes?.status?.value)}</td>
+                    <td className="text-muted">
+                      {order.meta?.created_at
+                        ? new Date(order.meta.created_at).toLocaleDateString()
+                        : 'N/A'}
+                    </td>
+                    <td className="text-end pe-4">
+                      <button
+                        onClick={() => viewOrderDetails(order)}
+                        className="btn btn-outline-primary btn-sm me-2"
+                      >
+                        View
+                      </button>
+                      {order.attributes?.status?.value === 'pending' && (
+                        <button
+                          onClick={() => handleStatusChange(order.id, 'processing')}
+                          className="btn btn-outline-warning btn-sm me-2"
+                        >
+                          Process
+                        </button>
+                      )}
+                      {['pending', 'processing'].includes(order.attributes?.status?.value) && (
+                        <button
+                          onClick={() => handleStatusChange(order.id, 'completed')}
+                          className="btn btn-outline-success btn-sm me-2"
+                        >
+                          Complete
+                        </button>
+                      )}
+                      {order.attributes?.is_cancellable && (
+                        <button
+                          onClick={() => handleCancel(order.id)}
+                          className="btn btn-outline-danger btn-sm me-2"
+                        >
+                          Cancel
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleDelete(order.id)}
+                        className="btn btn-outline-secondary btn-sm"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        )}
+
+          {orders.length === 0 && (
+            <div className="text-center py-5">
+              <div className="bg-light rounded-3 p-4 d-inline-block mb-3">
+                <span style={{ fontSize: '2rem' }}>🛒</span>
+              </div>
+              <p className="text-muted mb-0">No orders found</p>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Create Order Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl my-8">
-            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-slate-900">Create New Order</h3>
-              <button
-                onClick={closeModal}
-                className="text-slate-400 hover:text-slate-600 transition-colors"
-              >
-                ✕
-              </button>
-            </div>
-            <form onSubmit={handleSubmit} className="p-6">
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
-                    Customer ID *
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    value={formData.customer_id}
-                    onChange={(e) => setFormData({ ...formData, customer_id: parseInt(e.target.value) })}
-                    className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
+        <div className="modal fade show d-block" style={{ zIndex: 1050 }}>
+          <div className="modal-dialog modal-dialog-centered modal-lg">
+            <div className="modal-content shadow">
+              <div className="modal-header">
+                <h5 className="modal-title">Create New Order</h5>
+                <button type="button" className="btn-close" onClick={closeModal}></button>
+              </div>
+              <form onSubmit={handleSubmit}>
+                <div className="modal-body">
+                  <div className="mb-3">
+                    <label className="form-label fw-medium">Customer ID *</label>
+                    <input
+                      type="number"
+                      required
+                      className="form-control"
+                      value={formData.customer_id}
+                      onChange={(e) => setFormData({ ...formData, customer_id: parseInt(e.target.value) })}
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Order Items *
-                  </label>
-                  {formData.items.map((item, index) => (
-                    <div key={index} className="flex gap-2 mb-2">
-                      <select
-                        value={item.product_id}
-                        onChange={(e) => updateItem(index, 'product_id', e.target.value)}
-                        required
-                        className="flex-1 px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      >
-                        <option value="">Select Product</option>
-                        {products.map((product) => (
-                          <option key={product.id} value={product.id}>
-                            {product.attributes?.name} - {product.attributes?.price?.formatted}
-                          </option>
-                        ))}
-                      </select>
-                      <input
-                        type="number"
-                        min="1"
-                        value={item.quantity}
-                        onChange={(e) => updateItem(index, 'quantity', parseInt(e.target.value))}
-                        required
-                        className="w-24 px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="Qty"
-                      />
-                      {formData.items.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => removeItem(index)}
-                          className="px-3 py-2 text-red-600 hover:text-red-800 transition-colors"
-                        >
-                          ✕
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={addItem}
-                    className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors"
-                  >
-                    + Add Another Item
+                  <div className="mb-3">
+                    <label className="form-label fw-medium">Order Items *</label>
+                    {formData.items.map((item, index) => (
+                      <div key={index} className="row g-2 mb-2">
+                        <div className="col-7">
+                          <select
+                            value={item.product_id}
+                            onChange={(e) => updateItem(index, 'product_id', e.target.value)}
+                            required
+                            className="form-select"
+                          >
+                            <option value="">Select Product</option>
+                            {products.map((product) => (
+                              <option key={product.id} value={product.id}>
+                                {product.attributes?.name} - {product.attributes?.price?.formatted}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="col-3">
+                          <input
+                            type="number"
+                            min="1"
+                            value={item.quantity}
+                            onChange={(e) => updateItem(index, 'quantity', parseInt(e.target.value))}
+                            required
+                            className="form-control"
+                            placeholder="Qty"
+                          />
+                        </div>
+                        <div className="col-2">
+                          {formData.items.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => removeItem(index)}
+                              className="btn btn-outline-danger"
+                            >
+                              ✕
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={addItem}
+                      className="btn btn-link p-0"
+                    >
+                      + Add Another Item
+                    </button>
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">Notes</label>
+                    <textarea
+                      className="form-control"
+                      rows={2}
+                      value={formData.notes}
+                      onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button type="button" className="btn btn-light" onClick={closeModal}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn btn-primary">
+                    Create Order
                   </button>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
-                    Notes
-                  </label>
-                  <textarea
-                    value={formData.notes}
-                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                    className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    rows={2}
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3 mt-6">
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  className="px-4 py-2.5 text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2.5 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-sm shadow-blue-600/30"
-                >
-                  Create Order
-                </button>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
+          <div className="modal-backdrop fade show" onClick={closeModal}></div>
         </div>
       )}
 
       {/* Order Details Modal */}
       {selectedOrder && (
-        <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-slate-900">
-                Order #{selectedOrder.attributes?.order_number || selectedOrder.id}
-              </h3>
-              <button
-                onClick={() => setSelectedOrder(null)}
-                className="text-slate-400 hover:text-slate-600 transition-colors"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div>
-                  <p className="text-sm text-slate-500">Status</p>
-                  <p className="font-medium mt-1">{getStatusBadge(selectedOrder.attributes?.status?.value)}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-slate-500">Total</p>
-                  <p className="font-medium text-lg text-slate-900 mt-1">
-                    {selectedOrder.attributes?.total_amount?.formatted || 'N/A'}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-slate-500">Customer ID</p>
-                  <p className="font-medium text-slate-900 mt-1">{selectedOrder.attributes?.customer_id}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-slate-500">Date</p>
-                  <p className="font-medium text-slate-900 mt-1">
-                    {selectedOrder.meta?.created_at
-                      ? new Date(selectedOrder.meta.created_at).toLocaleString()
-                      : 'N/A'}
-                  </p>
-                </div>
+        <div className="modal fade show d-block" style={{ zIndex: 1050 }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content shadow">
+              <div className="modal-header">
+                <h5 className="modal-title">
+                  Order #{selectedOrder.attributes?.order_number || selectedOrder.id}
+                </h5>
+                <button type="button" className="btn-close" onClick={() => setSelectedOrder(null)}></button>
               </div>
-
-              {selectedOrder.attributes?.notes && (
-                <div className="mb-6">
-                  <p className="text-sm text-slate-500">Notes</p>
-                  <p className="font-medium text-slate-900 mt-1">{selectedOrder.attributes.notes}</p>
+              <div className="modal-body">
+                <div className="row g-3 mb-4">
+                  <div className="col-6">
+                    <p className="text-muted small mb-1">Status</p>
+                    <p className="mb-0">{getStatusBadge(selectedOrder.attributes?.status?.value)}</p>
+                  </div>
+                  <div className="col-6">
+                    <p className="text-muted small mb-1">Total</p>
+                    <p className="fw-bold fs-5 mb-0">
+                      {selectedOrder.attributes?.total_amount?.formatted || 'N/A'}
+                    </p>
+                  </div>
+                  <div className="col-6">
+                    <p className="text-muted small mb-1">Customer ID</p>
+                    <p className="mb-0">{selectedOrder.attributes?.customer_id}</p>
+                  </div>
+                  <div className="col-6">
+                    <p className="text-muted small mb-1">Date</p>
+                    <p className="mb-0">
+                      {selectedOrder.meta?.created_at
+                        ? new Date(selectedOrder.meta.created_at).toLocaleString()
+                        : 'N/A'}
+                    </p>
+                  </div>
                 </div>
-              )}
 
-              <div>
-                <p className="text-sm text-slate-500 mb-3">Items</p>
-                <div className="bg-slate-50 rounded-xl p-4 space-y-3">
-                  {selectedOrder.attributes?.items?.map((item, index) => (
-                    <div key={index} className="flex justify-between py-2 border-b border-slate-200 last:border-0">
-                      <div>
-                        <p className="font-medium text-slate-900">
-                          {item.attributes?.product_name || `Product #${item.product_id}`}
-                        </p>
-                        <p className="text-sm text-slate-500">
-                          {item.attributes?.quantity} x {item.attributes?.unit_price?.formatted || `${item.unit_price} EGP`}
-                        </p>
+                {selectedOrder.attributes?.notes && (
+                  <div className="mb-4">
+                    <p className="text-muted small mb-1">Notes</p>
+                    <p className="mb-0">{selectedOrder.attributes.notes}</p>
+                  </div>
+                )}
+
+                <div>
+                  <p className="text-muted small mb-3">Items</p>
+                  <div className="bg-light rounded-3 p-3">
+                    {selectedOrder.attributes?.items?.map((item, index) => (
+                      <div key={index} className="d-flex justify-content-between py-2 border-bottom">
+                        <div>
+                          <div className="fw-medium">
+                            {item.attributes?.product_name || `Product #${item.product_id}`}
+                          </div>
+                          <div className="text-muted small">
+                            {item.attributes?.quantity} × {item.attributes?.unit_price?.formatted || `${item.unit_price} EGP`}
+                          </div>
+                        </div>
+                        <div className="fw-medium">
+                          {item.attributes?.subtotal?.formatted || `${item.subtotal} EGP`}
+                        </div>
                       </div>
-                      <p className="font-semibold text-slate-900">
-                        {item.attributes?.subtotal?.formatted || `${item.subtotal} EGP`}
-                      </p>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+          <div className="modal-backdrop fade show" onClick={() => setSelectedOrder(null)}></div>
         </div>
       )}
     </div>
