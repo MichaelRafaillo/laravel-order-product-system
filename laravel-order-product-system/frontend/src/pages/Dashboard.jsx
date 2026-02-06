@@ -2,6 +2,72 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { productsAPI, ordersAPI } from '../services/api';
 
+const StatCard = ({ title, value, icon, color, trend }) => (
+  <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow duration-300">
+    <div className="flex items-start justify-between">
+      <div>
+        <p className="text-sm font-medium text-slate-500">{title}</p>
+        <p className="mt-2 text-3xl font-bold text-slate-900">{value}</p>
+        {trend && (
+          <p className={`mt-2 text-sm ${trend > 0 ? 'text-green-600' : 'text-red-600'}`}>
+            {trend > 0 ? '↑' : '↓'} {Math.abs(trend)}% from last month
+          </p>
+        )}
+      </div>
+      <div className={`p-3 rounded-xl ${color}`}>
+        <span className="text-2xl">{icon}</span>
+      </div>
+    </div>
+  </div>
+);
+
+const QuickAction = ({ title, description, link, buttonText, icon, color }) => (
+  <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-all duration-300 group">
+    <div className="flex items-start space-x-4">
+      <div className={`p-3 rounded-xl ${color} group-hover:scale-110 transition-transform duration-300`}>
+        <span className="text-2xl">{icon}</span>
+      </div>
+      <div className="flex-1">
+        <h3 className="font-semibold text-slate-900">{title}</h3>
+        <p className="text-sm text-slate-500 mt-1">{description}</p>
+        <Link
+          to={link}
+          className="inline-flex items-center mt-4 text-sm font-medium text-blue-600 hover:text-blue-700"
+        >
+          {buttonText}
+          <svg className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </Link>
+      </div>
+    </div>
+  </div>
+);
+
+const StatusBadge = ({ status }) => {
+  const styles = {
+    pending: 'bg-amber-100 text-amber-700 border-amber-200',
+    processing: 'bg-blue-100 text-blue-700 border-blue-200',
+    completed: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+    cancelled: 'bg-red-100 text-red-700 border-red-200',
+    refunded: 'bg-slate-100 text-slate-700 border-slate-200',
+  };
+
+  const labels = {
+    pending: 'Pending',
+    processing: 'Processing',
+    completed: 'Completed',
+    cancelled: 'Cancelled',
+    refunded: 'Refunded',
+  };
+
+  return (
+    <span className={`px-3 py-1 text-xs font-medium rounded-full border ${styles[status] || 'bg-slate-100 text-slate-700'}`}>
+      {labels[status] || status?.charAt(0).toUpperCase() + status?.slice(1) || 'Unknown'}
+    </span>
+  );
+};
+
 const Dashboard = () => {
   const [stats, setStats] = useState({
     totalProducts: 0,
@@ -44,138 +110,106 @@ const Dashboard = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-gray-500">Loading...</div>
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-slate-500">Loading...</span>
+        </div>
       </div>
     );
   }
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Dashboard</h2>
-      
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div className="space-y-6">
+      {/* Page header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
+          <p className="text-slate-500 mt-1">Welcome back! Here's your store overview.</p>
+        </div>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="Total Products"
           value={stats.totalProducts}
           icon="📦"
-          color="bg-blue-500"
+          color="bg-blue-100 text-blue-600"
+          trend={12}
         />
         <StatCard
           title="Total Orders"
           value={stats.totalOrders}
           icon="🛒"
-          color="bg-green-500"
+          color="bg-purple-100 text-purple-600"
+          trend={8}
         />
         <StatCard
           title="Pending Orders"
           value={stats.pendingOrders}
           icon="⏳"
-          color="bg-yellow-500"
+          color="bg-amber-100 text-amber-600"
         />
         <StatCard
-          title="Completed Orders"
+          title="Completed"
           value={stats.completedOrders}
           icon="✅"
-          color="bg-purple-500"
+          color="bg-emerald-100 text-emerald-600"
         />
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <QuickAction
           title="Manage Products"
-          description="Add, edit, or delete products"
+          description="Add, edit, or delete products in your catalog"
           link="/products"
           buttonText="Go to Products"
           icon="📦"
+          color="bg-blue-100 text-blue-600"
         />
         <QuickAction
           title="Manage Orders"
-          description="View and process orders"
+          description="View and process customer orders"
           link="/orders"
           buttonText="Go to Orders"
           icon="🛒"
+          color="bg-purple-100 text-purple-600"
         />
       </div>
 
       {/* Recent Orders */}
       {recentOrders.length > 0 && (
-        <div className="bg-white rounded-lg shadow">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-800">Recent Orders</h3>
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+          <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-slate-900">Recent Orders</h2>
+            <Link to="/orders" className="text-sm font-medium text-blue-600 hover:text-blue-700">
+              View all →
+            </Link>
           </div>
-          <div className="divide-y divide-gray-200">
+          <div className="divide-y divide-slate-100">
             {recentOrders.map((order) => (
-              <div key={order.id} className="px-6 py-4 flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-gray-800">
-                    Order #{order.attributes?.order_number || order.id}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    {order.attributes?.items_count || 0} items - {order.attributes?.total_amount?.formatted || 'N/A'}
-                  </p>
+              <div key={order.id} className="px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
+                <div className="flex items-center space-x-4">
+                  <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center">
+                    <span className="text-slate-600">🛒</span>
+                  </div>
+                  <div>
+                    <p className="font-medium text-slate-900">
+                      #{order.attributes?.order_number || order.id}
+                    </p>
+                    <p className="text-sm text-slate-500">
+                      {order.attributes?.items_count || 0} items • {order.attributes?.total_amount?.formatted || 'N/A'}
+                    </p>
+                  </div>
                 </div>
                 <StatusBadge status={order.attributes?.status?.value} />
               </div>
             ))}
           </div>
-          <div className="px-6 py-4 border-t border-gray-200">
-            <Link to="/orders" className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-              View all orders →
-            </Link>
-          </div>
         </div>
       )}
     </div>
-  );
-};
-
-const StatCard = ({ title, value, icon, color }) => (
-  <div className="bg-white rounded-lg shadow p-6">
-    <div className="flex items-center">
-      <div className={`${color} rounded-full p-3 mr-4`}>
-        <span className="text-2xl">{icon}</span>
-      </div>
-      <div>
-        <p className="text-sm text-gray-500">{title}</p>
-        <p className="text-3xl font-bold text-gray-800">{value}</p>
-      </div>
-    </div>
-  </div>
-);
-
-const QuickAction = ({ title, description, link, buttonText, icon }) => (
-  <div className="bg-white rounded-lg shadow p-6">
-    <div className="flex items-center mb-4">
-      <span className="text-3xl mr-3">{icon}</span>
-      <div>
-        <h3 className="font-semibold text-gray-800">{title}</h3>
-        <p className="text-sm text-gray-500">{description}</p>
-      </div>
-    </div>
-    <Link
-      to={link}
-      className="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-    >
-      {buttonText}
-    </Link>
-  </div>
-);
-
-const StatusBadge = ({ status }) => {
-  const styles = {
-    pending: 'bg-yellow-100 text-yellow-800',
-    processing: 'bg-blue-100 text-blue-800',
-    completed: 'bg-green-100 text-green-800',
-    cancelled: 'bg-red-100 text-red-800',
-    refunded: 'bg-gray-100 text-gray-800',
-  };
-
-  return (
-    <span className={`px-3 py-1 rounded-full text-xs font-medium ${styles[status] || 'bg-gray-100 text-gray-800'}`}>
-      {status?.charAt(0).toUpperCase() + status?.slice(1) || 'Unknown'}
-    </span>
   );
 };
 

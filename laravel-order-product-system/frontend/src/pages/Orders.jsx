@@ -122,16 +122,24 @@ const Orders = () => {
 
   const getStatusBadge = (status) => {
     const styles = {
-      pending: 'bg-yellow-100 text-yellow-800',
-      processing: 'bg-blue-100 text-blue-800',
-      completed: 'bg-green-100 text-green-800',
-      cancelled: 'bg-red-100 text-red-800',
-      refunded: 'bg-gray-100 text-gray-800',
+      pending: 'bg-amber-100 text-amber-700 border-amber-200',
+      processing: 'bg-blue-100 text-blue-700 border-blue-200',
+      completed: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+      cancelled: 'bg-red-100 text-red-700 border-red-200',
+      refunded: 'bg-slate-100 text-slate-700 border-slate-200',
+    };
+
+    const labels = {
+      pending: 'Pending',
+      processing: 'Processing',
+      completed: 'Completed',
+      cancelled: 'Cancelled',
+      refunded: 'Refunded',
     };
 
     return (
-      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${styles[status] || 'bg-gray-100 text-gray-800'}`}>
-        {status?.charAt(0).toUpperCase() + status?.slice(1) || 'Unknown'}
+      <span className={`px-3 py-1 text-xs font-medium rounded-full border ${styles[status] || 'bg-slate-100 text-slate-700'}`}>
+        {labels[status] || status?.charAt(0).toUpperCase() + status?.slice(1) || 'Unknown'}
       </span>
     );
   };
@@ -139,30 +147,39 @@ const Orders = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-gray-500">Loading orders...</div>
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-slate-500">Loading orders...</span>
+        </div>
       </div>
     );
   }
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Orders</h2>
+    <div className="space-y-6">
+      {/* Page header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Orders</h1>
+          <p className="text-slate-500 mt-1">Manage and track customer orders</p>
+        </div>
         <button
           onClick={() => setShowModal(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm shadow-blue-600/30"
         >
-          + New Order
+          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+          New Order
         </button>
       </div>
 
       {/* Filters */}
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Status</label>
+      <div className="flex gap-3">
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
         >
           <option value="">All Orders</option>
           <option value="pending">Pending</option>
@@ -173,51 +190,58 @@ const Orders = () => {
       </div>
 
       {/* Orders Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <table className="min-w-full divide-y divide-slate-200">
+          <thead className="bg-slate-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                 Order #
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                 Items
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                 Total
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                 Status
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                 Date
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white divide-y divide-slate-200">
             {orders.map((order) => (
-              <tr key={order.id} className="hover:bg-gray-50">
+              <tr key={order.id} className="hover:bg-slate-50 transition-colors">
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">
-                    #{order.attributes?.order_number || order.id}
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    Customer: {order.attributes?.customer_id}
+                  <div className="flex items-center">
+                    <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                      <span className="text-purple-600">🛒</span>
+                    </div>
+                    <div className="ml-4">
+                      <div className="text-sm font-medium text-slate-900">
+                        #{order.attributes?.order_number || order.id}
+                      </div>
+                      <div className="text-sm text-slate-500">
+                        Customer: {order.attributes?.customer_id}
+                      </div>
+                    </div>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
                   {order.attributes?.items_count || 0} items
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-900">
                   {order.attributes?.total_amount?.formatted || 'N/A'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   {getStatusBadge(order.attributes?.status?.value)}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                   {order.meta?.created_at
                     ? new Date(order.meta.created_at).toLocaleDateString()
                     : 'N/A'}
@@ -225,14 +249,14 @@ const Orders = () => {
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <button
                     onClick={() => viewOrderDetails(order)}
-                    className="text-blue-600 hover:text-blue-900 mr-4"
+                    className="text-blue-600 hover:text-blue-900 mr-3 transition-colors"
                   >
                     View
                   </button>
                   {order.attributes?.status?.value === 'pending' && (
                     <button
                       onClick={() => handleStatusChange(order.id, 'processing')}
-                      className="text-yellow-600 hover:text-yellow-900 mr-4"
+                      className="text-amber-600 hover:text-amber-900 mr-3 transition-colors"
                     >
                       Process
                     </button>
@@ -240,7 +264,7 @@ const Orders = () => {
                   {['pending', 'processing'].includes(order.attributes?.status?.value) && (
                     <button
                       onClick={() => handleStatusChange(order.id, 'completed')}
-                      className="text-green-600 hover:text-green-900 mr-4"
+                      className="text-emerald-600 hover:text-emerald-900 mr-3 transition-colors"
                     >
                       Complete
                     </button>
@@ -248,14 +272,14 @@ const Orders = () => {
                   {order.attributes?.is_cancellable && (
                     <button
                       onClick={() => handleCancel(order.id)}
-                      className="text-red-600 hover:text-red-900 mr-4"
+                      className="text-red-600 hover:text-red-900 mr-3 transition-colors"
                     >
                       Cancel
                     </button>
                   )}
                   <button
                     onClick={() => handleDelete(order.id)}
-                    className="text-gray-600 hover:text-gray-900"
+                    className="text-slate-600 hover:text-slate-900 transition-colors"
                   >
                     Delete
                   </button>
@@ -267,20 +291,31 @@ const Orders = () => {
 
         {orders.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-gray-500">No orders found</p>
+            <div className="w-16 h-16 mx-auto bg-slate-100 rounded-full flex items-center justify-center mb-4">
+              <span className="text-3xl">🛒</span>
+            </div>
+            <p className="text-slate-500">No orders found</p>
           </div>
         )}
       </div>
 
       {/* Create Order Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
-          <div className="bg-white rounded-lg p-6 w-full max-w-2xl my-8">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Create New Order</h3>
-            <form onSubmit={handleSubmit}>
+        <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl my-8">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-slate-900">Create New Order</h3>
+              <button
+                onClick={closeModal}
+                className="text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+            <form onSubmit={handleSubmit} className="p-6">
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
                     Customer ID *
                   </label>
                   <input
@@ -288,12 +323,12 @@ const Orders = () => {
                     required
                     value={formData.customer_id}
                     onChange={(e) => setFormData({ ...formData, customer_id: parseInt(e.target.value) })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
                     Order Items *
                   </label>
                   {formData.items.map((item, index) => (
@@ -302,7 +337,7 @@ const Orders = () => {
                         value={item.product_id}
                         onChange={(e) => updateItem(index, 'product_id', e.target.value)}
                         required
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="flex-1 px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       >
                         <option value="">Select Product</option>
                         {products.map((product) => (
@@ -317,14 +352,14 @@ const Orders = () => {
                         value={item.quantity}
                         onChange={(e) => updateItem(index, 'quantity', parseInt(e.target.value))}
                         required
-                        className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-24 px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="Qty"
                       />
                       {formData.items.length > 1 && (
                         <button
                           type="button"
                           onClick={() => removeItem(index)}
-                          className="px-3 py-2 text-red-600 hover:text-red-800"
+                          className="px-3 py-2 text-red-600 hover:text-red-800 transition-colors"
                         >
                           ✕
                         </button>
@@ -334,20 +369,20 @@ const Orders = () => {
                   <button
                     type="button"
                     onClick={addItem}
-                    className="text-blue-600 hover:text-blue-800 text-sm"
+                    className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors"
                   >
                     + Add Another Item
                   </button>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
                     Notes
                   </label>
                   <textarea
                     value={formData.notes}
                     onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     rows={2}
                   />
                 </div>
@@ -357,13 +392,13 @@ const Orders = () => {
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300"
+                  className="px-4 py-2.5 text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+                  className="px-4 py-2.5 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-sm shadow-blue-600/30"
                 >
                   Create Order
                 </button>
@@ -375,39 +410,39 @@ const Orders = () => {
 
       {/* Order Details Modal */}
       {selectedOrder && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-start mb-4">
-              <h3 className="text-lg font-semibold text-gray-800">
+        <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-slate-900">
                 Order #{selectedOrder.attributes?.order_number || selectedOrder.id}
               </h3>
               <button
                 onClick={() => setSelectedOrder(null)}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-slate-400 hover:text-slate-600 transition-colors"
               >
                 ✕
               </button>
             </div>
 
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+              <div className="grid grid-cols-2 gap-4 mb-6">
                 <div>
-                  <p className="text-sm text-gray-500">Status</p>
-                  <p className="font-medium">{getStatusBadge(selectedOrder.attributes?.status?.value)}</p>
+                  <p className="text-sm text-slate-500">Status</p>
+                  <p className="font-medium mt-1">{getStatusBadge(selectedOrder.attributes?.status?.value)}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Total</p>
-                  <p className="font-medium text-lg">
+                  <p className="text-sm text-slate-500">Total</p>
+                  <p className="font-medium text-lg text-slate-900 mt-1">
                     {selectedOrder.attributes?.total_amount?.formatted || 'N/A'}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Customer ID</p>
-                  <p className="font-medium">{selectedOrder.attributes?.customer_id}</p>
+                  <p className="text-sm text-slate-500">Customer ID</p>
+                  <p className="font-medium text-slate-900 mt-1">{selectedOrder.attributes?.customer_id}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Date</p>
-                  <p className="font-medium">
+                  <p className="text-sm text-slate-500">Date</p>
+                  <p className="font-medium text-slate-900 mt-1">
                     {selectedOrder.meta?.created_at
                       ? new Date(selectedOrder.meta.created_at).toLocaleString()
                       : 'N/A'}
@@ -416,24 +451,26 @@ const Orders = () => {
               </div>
 
               {selectedOrder.attributes?.notes && (
-                <div>
-                  <p className="text-sm text-gray-500">Notes</p>
-                  <p className="font-medium">{selectedOrder.attributes.notes}</p>
+                <div className="mb-6">
+                  <p className="text-sm text-slate-500">Notes</p>
+                  <p className="font-medium text-slate-900 mt-1">{selectedOrder.attributes.notes}</p>
                 </div>
               )}
 
               <div>
-                <p className="text-sm text-gray-500 mb-2">Items</p>
-                <div className="bg-gray-50 rounded-lg p-4">
+                <p className="text-sm text-slate-500 mb-3">Items</p>
+                <div className="bg-slate-50 rounded-xl p-4 space-y-3">
                   {selectedOrder.attributes?.items?.map((item, index) => (
-                    <div key={index} className="flex justify-between py-2 border-b last:border-0">
+                    <div key={index} className="flex justify-between py-2 border-b border-slate-200 last:border-0">
                       <div>
-                        <p className="font-medium">{item.attributes?.product_name || `Product #${item.product_id}`}</p>
-                        <p className="text-sm text-gray-500">
+                        <p className="font-medium text-slate-900">
+                          {item.attributes?.product_name || `Product #${item.product_id}`}
+                        </p>
+                        <p className="text-sm text-slate-500">
                           {item.attributes?.quantity} x {item.attributes?.unit_price?.formatted || `${item.unit_price} EGP`}
                         </p>
                       </div>
-                      <p className="font-medium">
+                      <p className="font-semibold text-slate-900">
                         {item.attributes?.subtotal?.formatted || `${item.subtotal} EGP`}
                       </p>
                     </div>
